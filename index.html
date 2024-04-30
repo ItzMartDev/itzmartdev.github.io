@@ -5,8 +5,26 @@
   <link rel="icon" type="image/svg" href="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Windows_logo_-_2021.svg/1024px-Windows_logo_-_2021.svg.png">
   <style>
     body {
-      background-color: #363f3f; /* Cor do Discord */
+    background-color: #363f3f; /* Cor do Discord */
+    animation: chroma-effect 10s infinite; /* Adiciona a animação */
+  }
+  @keyframes chroma-effect {
+    0% {
+      background-color: #363f3f;
     }
+    25% {
+      background-color: #4f5f7f;
+    }
+    50% {
+      background-color: #5865f2;
+    }
+    75% {
+      background-color: #4f5f7f;
+    }
+    100% {
+      background-color: #363f3f;
+    }
+  }
 .column {
       float: left;
       width: 100%;
@@ -45,6 +63,9 @@
         box-shadow: 0 0 0 1px #5865f2;
       }
     }
+    h1, h2, b {
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Adiciona uma sombra preta com 50% de opacidade */
+    }
   </style>
 </head>
 <body>
@@ -53,8 +74,10 @@
     <h2><b style="color: #007BFF; font-family: Arial; font-weight: bold;">Roblox:</b></h2>
     <button class="button" onclick="window.open('https://www.roblox.com/my/avatar', '_blank'); return false;"><b>Avatar</b></button>
     <button class="button" onclick="window.open('https://www.roblox.com/home', '_blank'); return false;"><b>Home</b></button>
+    <button class="button" onclick="window.open('www.roblox.com/users/profile', '_blank'); return false;"><b>Perfil</b></button>
     <button class="button" onclick="window.open('https://www.roblox.com/games/142823291/Murder-Mystery-2', '_blank'); return false;"><b>MM2</b></button>
     <button class="button" onclick="window.open('https://www.roblox.com/games/2534724415/Emergency-Response-Liberty-County', '_blank'); return false;"><b>ERLC</b></button>
+    <button class="button" onclick="window.open('https://www.roblox.com/games/16389395869/a-dusty-trip-BACKPACK', '_blank'); return false;"><b>Dusty Trip</b></button>
   </div>
   <div class="column">
     <h2><b style="color: #007BFF; font-family: Arial; font-weight: bold;">Google:</b></h2>
@@ -71,7 +94,6 @@
     <button class="button" style="margin-left: 5px;" onclick="window.open('https://www.blackbox.ai/', '_blank'); return false;"><b>BlackBox AI</b></button>
     <button class="button" style="margin-left: 5px;" onclick="window.open('https://copilot.microsoft.com/', '_blank'); return false;"><b>Copilot</b></button>
     <button class="button" style="margin-left: 5px;" onclick="window.open('https://character.ai/', '_blank'); return false;"><b>Character AI</b></button>
-    <button class="button" style="margin-left: 5px;" onclick="window.open('https://gemini.google.com', '_blank'); return false;"><b>Gemini</b></button>
   </div>
   <div class="column">
     <h2><b style="color: #007BFF; font-family: Arial; font-weight: bold;">Redes Sociais:</b></h2>
@@ -81,23 +103,11 @@
     <button class="button" style="margin-left: 5px;" onclick="window.open('https://www.youtube.com/shorts', '_blank'); return false;"><b>Youtube Shorts</b></button>
   </div>
   <div class="column">
-    <h2><b style="color: #007BFF; font-family: Arial; font-weight: bold;">Música:</b></h2>
-    <button class="button" onclick="window.open('https://open.spotify.com', '_blank'); return false;"><b>Spotify</b></button>
-    <button class="button" style="margin-left: 5px;" onclick="window.open('https://music.youtube.com', '_blank'); return false;"><b>Youtube Music</b></button>
-    <button class="button" style="margin-left: 5px;" onclick="window.open('https://www.deezer.com', '_blank'); return false;"><b>Deezer</b></button>
-    <button class="button" style="margin-left: 5px;" onclick="window.open('https://tidal.com', '_blank'); return false;"><b>Tidal</b></button>
-    <button class="button" style="margin-left: 5px;" onclick="window.open('https://soundcloud.com', '_blank'); return false;"><b>Sound Cloud</b></button>
-  </div>
-  <div class="column">
     <h2><b style="color: #007BFF; font-family: Arial; font-weight: bold;">Conversas:</b></h2>
     <button class="button" onclick="window.open('https://discord.com/channels/@me', '_blank'); return false;"><b>Discord</b></button>
     <button class="button" style="margin-left: 5px;" onclick="window.open('https://web.whatsapp.com/', '_blank'); return false;"><b>Whatsapp</b></button>
   </div>
-  <div class="column">
-    <h2><b style="color: #007BFF; font-family: Arial; font-weight: bold;">Sites criado por ItzMart: </b></h2>
-    <button class="button" onclick="window.open('https://itzmart.github.io/robuxpdtscalculator/', '_blank'); return false;"><b>Calcular Robux pendentes</b></button>
-  </div>
-  <h1><b>Criador: ItzMart</b></h1>
-  <h1><b>Versão V2.2</b></h1>
+  <h1><b>Criador: Mart</b></h1>
+  <h1><b>Versão V2.5</b></h1>
 </body>
 </html>
