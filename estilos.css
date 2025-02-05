@@ -48,7 +48,7 @@ img.principal {
     border-bottom: 2px solid black;
     border-left: 2px solid black;
     border-radius: 10px;
-    object-fit: cover;
+    object-fit: cover; 
     image-rendering: auto;
     margin-top: 20px;
     margin-bottom: 20px;
