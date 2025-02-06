@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorações Vibrantes 🌈</title>
+    <link rel="icon" type="image/x-icon" href="../imagens/logo.ico">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="experience-container">
+        <!-- Seção 1: Portal Psicodélico -->
+        <section class="portal-section">
+            <div class="portal">
+                <div class="portal-rings"></div>
+                <div class="portal-core"></div>
+            </div>
+        </section>
+
+        <!-- Seção 2: Canvas Fluido -->
+        <section class="fluid-section">
+            <canvas id="fluidCanvas"></canvas>
+        </section>
+
+        <!-- Seção 3: Vórtice de Bolhas -->
+        <section class="bubble-vortex">
+            <div class="bubble-container"></div>
+        </section>
+
+        <!-- Seção 4: Grade Neon -->
+        <section class="neon-grid">
+            <div class="grid"></div>
+        </section>
+
+        <!-- Seção 5: Túnel de Luz -->
+        <section class="light-tunnel">
+            <div class="tunnel-container"></div>
+        </section>
+    </div>
+
+    <nav class="experience-nav">
+        <button class="nav-btn active" data-section="portal">Portal</button>
+        <button class="nav-btn" data-section="fluid">Fluido</button>
+        <button class="nav-btn" data-section="vortex">Vórtice</button>
+        <button class="nav-btn" data-section="grid">Grade</button>
+        <button class="nav-btn" data-section="tunnel">Túnel</button>
+    </nav>
+
+    <script>
+        // Canvas Fluid Animation
+        const canvas = document.getElementById('fluidCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Fluid simulation parameters
+        const particles = [];
+        const particleCount = 100;
+        const maxVelocity = 2;
+        
+        // Create particles
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * maxVelocity,
+                vy: (Math.random() - 0.5) * maxVelocity,
+                hue: Math.random() * 360
+            });
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.hue += 0.5;
+
+                if (particle.x < 0) particle.x = canvas.width;
+                if (particle.x > canvas.width) particle.x = 0;
+                if (particle.y < 0) particle.y = canvas.height;
+                if (particle.y > canvas.height) particle.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = `hsl(${particle.hue}, 100%, 50%)`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const section = btn.dataset.section;
+                document.querySelector('.experience-container').setAttribute('data-active', section);
+            });
+        });
+
+        // Generate dynamic bubbles
+        const bubbleContainer = document.querySelector('.bubble-container');
+        for (let i = 0; i < 50; i++) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.style.setProperty('--delay', `${Math.random() * 5}s`);
+            bubble.style.setProperty('--size', `${Math.random() * 100 + 20}px`);
+            bubbleContainer.appendChild(bubble);
+        }
+
+        // Generate grid cells
+        const grid = document.querySelector('.grid');
+        for (let i = 0; i < 100; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            grid.appendChild(cell);
+        }
+
+        // Generate tunnel layers
+        const tunnel = document.querySelector('.tunnel-container');
+        for (let i = 0; i < 10; i++) {
+            const layer = document.createElement('div');
+            layer.className = 'tunnel-layer';
+            layer.style.setProperty('--index', i);
+            tunnel.appendChild(layer);
+        }
+    </script>
+</body>
+</html>

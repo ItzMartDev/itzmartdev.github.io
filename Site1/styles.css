@@ -1,0 +1,242 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: #000;
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
+
+.experience-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+/* Navigation */
+.experience-nav {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.nav-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.nav-btn.active {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Portal Effect */
+.portal-section {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+}
+
+.portal {
+    position: relative;
+    width: 300px;
+    height: 300px;
+}
+
+.portal-rings {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: portalSpin 4s linear infinite;
+    background: conic-gradient(
+        from 0deg,
+        #ff0000, #ff8800, #ffff00, #88ff00,
+        #00ff00, #00ff88, #00ffff, #0088ff,
+        #0000ff, #8800ff, #ff00ff, #ff0088,
+        #ff0000
+    );
+}
+
+.portal-core {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    background: #000;
+    border-radius: 50%;
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+}
+
+@keyframes portalSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Fluid Canvas */
+.fluid-section {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#fluidCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* Bubble Vortex */
+.bubble-vortex {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #000066, #660066);
+    perspective: 1000px;
+}
+
+.bubble-container {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: vortexSpin 20s linear infinite;
+}
+
+.bubble {
+    position: absolute;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+    border-radius: 50%;
+    animation: bubbleFloat 5s ease-in-out infinite;
+    animation-delay: var(--delay);
+    width: var(--size);
+    height: var(--size);
+}
+
+@keyframes vortexSpin {
+    0% { transform: rotateZ(0deg); }
+    100% { transform: rotateZ(360deg); }
+}
+
+@keyframes bubbleFloat {
+    0%, 100% { transform: translateZ(0) scale(1); }
+    50% { transform: translateZ(200px) scale(1.5); }
+}
+
+/* Neon Grid */
+.neon-grid {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    perspective: 1000px;
+}
+
+.grid {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    gap: 2px;
+    transform: rotateX(60deg);
+    animation: gridPulse 4s ease-in-out infinite;
+}
+
+.grid-cell {
+    background: #0f0;
+    box-shadow: 0 0 20px #0f0;
+    animation: cellGlow 2s ease-in-out infinite;
+    animation-delay: calc(var(--index) * 0.1s);
+}
+
+@keyframes gridPulse {
+    0%, 100% { transform: rotateX(60deg) translateZ(0); }
+    50% { transform: rotateX(60deg) translateZ(100px); }
+}
+
+@keyframes cellGlow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+/* Light Tunnel */
+.light-tunnel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    perspective: 1000px;
+}
+
+.tunnel-container {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+.tunnel-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid;
+    border-image: linear-gradient(45deg, #ff0000, #00ff00, #0000ff) 1;
+    transform: translateZ(calc(var(--index) * -100px));
+    animation: tunnelMove 5s linear infinite;
+}
+
+@keyframes tunnelMove {
+    0% { transform: translateZ(calc(var(--index) * -100px)); }
+    100% { transform: translateZ(1000px); }
+}
+
+/* Section Visibility Control */
+.experience-container[data-active="portal"] .portal-section { opacity: 1; pointer-events: all; }
+.experience-container[data-active="fluid"] .fluid-section { opacity: 1; pointer-events: all; }
+.experience-container[data-active="vortex"] .bubble-vortex { opacity: 1; pointer-events: all; }
+.experience-container[data-active="grid"] .neon-grid { opacity: 1; pointer-events: all; }
+.experience-container[data-active="tunnel"] .light-tunnel { opacity: 1; pointer-events: all; }
+
+.experience-container section {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .experience-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        bottom: 10px;
+    }
+
+    .nav-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .portal {
+        width: 200px;
+        height: 200px;
+    }
+}
