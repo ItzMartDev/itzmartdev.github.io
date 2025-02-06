@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorações Vibrantes</title>
+    <!-- Adicionando o favicon com caminho atualizado -->
+    <link rel="icon" type="image/x-icon" href="../imagens/logo.ico">
+    <!-- Caminho atualizado para o CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="experience-container" data-active="portal">
+        <!-- Seção 1: Portal Psicodélico -->
+        <section class="portal-section">
+            <div class="portal">
+                <div class="portal-rings"></div>
+                <div class="portal-core"></div>
+            </div>
+        </section>
+
+        <!-- Seção 2: Canvas Fluido -->
+        <section class="fluid-section">
+            <canvas id="fluidCanvas"></canvas>
+        </section>
+
+        <!-- Seção 3: Vórtice de Bolhas -->
+        <section class="bubble-vortex">
+            <div class="bubble-container"></div>
+        </section>
+
+        <!-- Seção 4: Grade Neon -->
+        <section class="neon-grid">
+            <div class="grid"></div>
+        </section>
+
+        <!-- Seção 5: Túnel de Luz -->
+        <section class="light-tunnel">
+            <div class="tunnel-container"></div>
+        </section>
+
+        <!-- Seção 6: Fundo de Estrelas -->
+        <section class="star-background">
+            <div class="stars"></div>
+        </section>
+
+        <!-- Seção 7: Neve Caindo -->
+        <section class="falling-snow">
+            <div class="snowflakes"></div>
+        </section>
+
+        <!-- Seção 8: Neblina -->
+        <section class="fog-section">
+            <div class="fog-container"></div>
+        </section>
+    </div>
+
+    <nav class="experience-nav">
+        <button class="nav-btn prev-btn">⬅️</button>
+        <div class="nav-btn-container">
+            <button class="nav-btn active" data-section="portal">Portal</button>
+            <button class="nav-btn" data-section="fluid">Fluido</button>
+            <button class="nav-btn" data-section="vortex">Vórtice</button>
+            <button class="nav-btn" data-section="grid">Grade</button>
+            <button class="nav-btn" data-section="tunnel">Túnel</button>
+            <button class="nav-btn" data-section="stars">Estrelas</button>
+            <button class="nav-btn" data-section="snow">Neve</button>
+            <button class="nav-btn" data-section="fog">Neblina</button>
+        </div>
+        <button class="nav-btn next-btn">➡️</button>
+    </nav>
+
+    <div class="fps-counter" id="fpsCounter">FPS: 0</div>
+
+    <div class="fullscreen-controls">
+        <button id="enterFullscreen">Entrar no Ecrã Cheio</button>
+        <button id="exitFullscreen" style="display: none;">Sair do Ecrã Cheio</button>
+    </div>
+
+    <script>
+        // FPS Counter
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        let fps = 0;
+        const fpsCounter = document.getElementById('fpsCounter');
+
+        function updateFPS() {
+            const currentTime = performance.now();
+            frameCount++;
+            if (currentTime - lastFrameTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastFrameTime = currentTime;
+                fpsCounter.textContent = `FPS: ${fps}`;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+
+        // Canvas Fluid Animation
+        const canvas = document.getElementById('fluidCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Fluid simulation parameters
+        const particles = [];
+        const particleCount = 100;
+        const maxVelocity = 2;
+        
+        // Create particles
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * maxVelocity,
+                vy: (Math.random() - 0.5) * maxVelocity,
+                hue: Math.random() * 360
+            });
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.hue += 0.5;
+
+                if (particle.x < 0) particle.x = canvas.width;
+                if (particle.x > canvas.width) particle.x = 0;
+                if (particle.y < 0) particle.y = canvas.height;
+                if (particle.y > canvas.height) particle.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = `hsl(${particle.hue}, 100%, 50%)`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Navigation
+        const navBtns = document.querySelectorAll('.nav-btn-container .nav-btn');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        let currentIndex = 0;
+
+        function updateNavigation() {
+            navBtns.forEach((btn, index) => {
+                btn.classList.toggle('active', index === currentIndex);
+            });
+            const section = navBtns[currentIndex].dataset.section;
+            document.querySelector('.experience-container').setAttribute('data-active', section);
+        }
+
+        navBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                currentIndex = index;
+                updateNavigation();
+            });
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex > 0) ? currentIndex - 1 : navBtns.length - 1;
+            updateNavigation();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex < navBtns.length - 1) ? currentIndex + 1 : 0;
+            updateNavigation();
+        });
+
+        updateNavigation();
+
+        // Generate dynamic bubbles
+        const bubbleContainer = document.querySelector('.bubble-container');
+        for (let i = 0; i < 50; i++) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.style.setProperty('--delay', `${Math.random() * 5}s`);
+            bubble.style.setProperty('--size', `${Math.random() * 100 + 20}px`);
+            bubbleContainer.appendChild(bubble);
+        }
+
+        // Generate grid cells
+        const grid = document.querySelector('.grid');
+        for (let i = 0; i < 100; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            grid.appendChild(cell);
+        }
+
+        // Generate tunnel layers
+        const tunnel = document.querySelector('.tunnel-container');
+        for (let i = 0; i < 10; i++) {
+            const layer = document.createElement('div');
+            layer.className = 'tunnel-layer';
+            layer.style.setProperty('--index', i);
+            tunnel.appendChild(layer);
+        }
+
+        // Generate stars
+        const stars = document.querySelector('.stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.left = `${Math.random() * 100}%`;
+            stars.appendChild(star);
+        }
+
+        // Generate snowflakes
+        const snowflakes = document.querySelector('.snowflakes');
+        for (let i = 0; i < 100; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.style.setProperty('--delay', `${Math.random() * 5}s`);
+            snowflake.style.setProperty('--size', `${Math.random() * 10 + 5}px`);
+            snowflakes.appendChild(snowflake);
+        }
+
+        // Generate fog layers
+        const fogContainer = document.querySelector('.fog-container');
+        for (let i = 0; i < 5; i++) {
+            const fog = document.createElement('div');
+            fog.className = 'fog-layer';
+            fog.style.setProperty('--index', i);
+            fogContainer.appendChild(fog);
+        }
+
+        // Fullscreen controls
+        const enterFullscreenBtn = document.getElementById('enterFullscreen');
+        const exitFullscreenBtn = document.getElementById('exitFullscreen');
+
+        enterFullscreenBtn.addEventListener('click', () => {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+                document.documentElement.msRequestFullscreen();
+            }
+            enterFullscreenBtn.style.display = 'none';
+            exitFullscreenBtn.style.display = 'block';
+        });
+
+        exitFullscreenBtn.addEventListener('click', () => {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE/Edge
+                document.msExitFullscreen();
+            }
+            enterFullscreenBtn.style.display = 'block';
+            exitFullscreenBtn.style.display = 'none';
+        });
+
+    </script>
+</body>
+</html>
