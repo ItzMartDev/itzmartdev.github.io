@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Gallery</title>
+    <link rel="icon" href="logo/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">Anime Gallery</h1>
+            <p class="subtitle">Uma coleção de personagens memoráveis</p>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Pesquisar por nome ou personagem...">
+                </div>
+            </div>
+        </header>
+
+        <main class="gallery">
+            <!-- Shikimori's Not Just a Cutie -->
+            <div class="anime-section" data-year="2022" data-type="anime">
+                <h2 class="anime-title">Shikimori's Not Just a Cutie</h2>
+                <p class="anime-year">2022</p>
+                <div class="anime-cards">
+                    <div class="card" data-tilt>
+                        <div class="card-content">
+                            <img src="image/Shikimori.png" alt="Shikimori">
+                            <div class="card-info">
+                                <h3>Shikimori</h3>
+                                <p>Protagonista Principal</p>
+                                <p class="character-desc">Uma rapariga bonita e popular que tem um lado cool e protetor. Apesar da sua aparência doce, revela-se uma pessoa forte e determinada quando necessário.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" data-tilt>
+                        <div class="card-content">
+                            <img src="image/Izumi.png" alt="Izumi">
+                            <div class="card-info">
+                                <h3>Izumi</h3>
+                                <p>Protagonista Secundário</p>
+                                <p class="character-desc">Um jovem com um passado intrigante e habilidades especiais. A sua personalidade misteriosa e atitude calma escondem uma força interior notável.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Komi Can't Communicate -->
+            <div class="anime-section" data-year="2021" data-type="anime">
+                <h2 class="anime-title">Komi Can't Communicate</h2>
+                <p class="anime-year">2021 - 2022</p>
+                <div class="anime-cards">
+                    <div class="card" data-tilt>
+                        <div class="card-content">
+                            <img src="image/Komi.png" alt="Komi">
+                            <div class="card-info">
+                                <h3>Komi</h3>
+                                <p>Protagonista Principal</p>
+                                <p class="character-desc">Uma rapariga bonita e popular que sofre de ansiedade social severa. Apesar das suas dificuldades em comunicar, tem um coração bondoso e uma personalidade cativante.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" data-tilt>
+                        <div class="card-content">
+                            <img src="image/Tadano.png" alt="Tadano">
+                            <div class="card-info">
+                                <h3>Tadano</h3>
+                                <p>Protagonista Secundário</p>
+                                <p class="character-desc">Um rapaz comum que se torna o primeiro amigo de Komi. A sua empatia e compreensão tornam-no num aliado valioso na jornada de Komi.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alya Sometimes Hides Her Feelings in Russian -->
+            <div class="anime-section" data-year="2023" data-type="anime">
+                <h2 class="anime-title">Alya Sometimes Hides Her Feelings in Russian</h2>
+                <p class="anime-year">2024</p>
+                <div class="anime-cards">
+                    <div class="card" data-tilt>
+                        <div class="card-content">
+                            <img src="image/Masashika.png" alt="Masashika">
+                            <div class="card-info">
+                                <h3>Masashika</h3>
+                                <p>Protagonista Principal</p>
+                                <p class="character-desc">Um personagem misterioso com habilidades únicas. A sua presença enigmática e ações calculadas tornam-no uma figura fascinante na história.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" data-tilt>
+                        <div class="card-content">
+                            <img src="image/Alya.png" alt="Alya">
+                            <div class="card-info">
+                                <h3>Alya</h3>
+                                <p>Antagonista Principal</p>
+                                <p class="character-desc">Uma personagem complexa com motivações ocultas. A sua dualidade entre bondade e antagonismo cria uma dinâmica intrigante na narrativa.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" data-tilt>
+                        <div class="card-content">
+                            <img src="image/Yushi.png" alt="Yushi">
+                            <div class="card-info">
+                                <h3>Yushi</h3>
+                                <p>Personagem de Apoio</p>
+                                <p class="character-desc">Um personagem leal e confiável que serve como pilar de apoio para os protagonistas. A sua presença constante e dedicação tornam-no indispensável.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="credits">
+                <p>Desenvolvido por <span>ItzMartDev</span></p>
+                <a href="https://github.com/ItzMartDev" target="_blank" class="github-link">
+                    <i class="fab fa-github"></i>
+                    <span>GitHub</span>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
