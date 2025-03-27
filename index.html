@@ -1,13 +1,23 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ItzMart Websites</title>
     <link rel="icon" type="image/x-icon" href="imagens/logo.ico">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <div class="theme-switch-wrapper">
+        <i class="fas fa-sun theme-icon sun-icon"></i>
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <div class="slider round"></div>
+        </label>
+        <i class="fas fa-moon theme-icon moon-icon"></i>
+    </div>
+    
     <div class="container">
         <h1>ItzMartDev Websites</h1>
         <input type="text" id="search" placeholder="Pesquisar sites...">
@@ -30,10 +40,39 @@
             </a>
         </div>
     </div>
+
+    <a href="https://github.com/ItzMartDev" target="_blank" class="github-button">
+        <i class="fab fa-github"></i>
+        <span>ItzMartDev</span>
+    </a>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const searchInput = document.getElementById('search');
             const siteCards = document.querySelectorAll('.site-card');
+            const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+
+            // Verifica se há um tema salvo
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                if (currentTheme === 'light') {
+                    toggleSwitch.checked = true;
+                }
+            }
+
+            // Função para mudar o tema
+            function switchTheme(e) {
+                if (e.target.checked) {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                }    
+            }
+
+            toggleSwitch.addEventListener('change', switchTheme);
 
             searchInput.addEventListener('input', function() {
                 const searchTerm = searchInput.value.toLowerCase();
