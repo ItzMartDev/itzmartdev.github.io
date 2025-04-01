@@ -1,8 +1,8 @@
 // Adiciona animação de entrada para os cards
 const cards = document.querySelectorAll('.card');
 const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
+    threshold: 0.05,
+    rootMargin: '0px 0px -30px 0px'
 };
 
 const observer = new IntersectionObserver((entries) => {
@@ -10,14 +10,15 @@ const observer = new IntersectionObserver((entries) => {
         if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
             entry.target.style.transform = 'translateY(0)';
+            observer.unobserve(entry.target);
         }
     });
 }, observerOptions);
 
 cards.forEach((card, index) => {
     card.style.opacity = '0';
-    card.style.transform = 'translateY(50px)';
-    card.style.transition = `all 0.5s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s`;
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = `all 0.3s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.05}s`;
     observer.observe(card);
 });
 
@@ -51,17 +52,18 @@ const sectionObserver = new IntersectionObserver((entries) => {
         if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
             entry.target.style.transform = 'translateY(0)';
+            sectionObserver.unobserve(entry.target);
         }
     });
 }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
+    threshold: 0.05,
+    rootMargin: '0px 0px -50px 0px'
 });
 
 sections.forEach(section => {
     section.style.opacity = '0';
-    section.style.transform = 'translateY(30px)';
-    section.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+    section.style.transform = 'translateY(20px)';
+    section.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
     sectionObserver.observe(section);
 });
 
