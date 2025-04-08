@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat GitHub</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h2>Bem-vindo ao Chat</h2>
+            <div class="login-form">
+                <input type="text" id="usernameInput" placeholder="Digite seu nome de usuário">
+                <button id="loginButton">Entrar no Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="chatScreen" class="container" style="display: none;">
+        <div class="sidebar">
+            <h2>Usuários Online</h2>
+            <ul id="userList"></ul>
+        </div>
+        <div class="chat-container">
+            <div class="messages" id="messages"></div>
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="Digite sua mensagem...">
+                <button id="sendButton">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="chat.js"></script>
+</body>
+</html> 
