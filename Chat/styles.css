@@ -91,9 +91,20 @@ body {
 }
 
 #userList li {
-    padding: 8px 0;
-    border-bottom: 1px solid #40444b;
-    color: #b9bbbe;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    background-color: #36393f;
+    transition: background-color 0.2s;
+}
+
+#userList li:hover {
+    background-color: #40444b;
+}
+
+#userList li.current-user {
+    background-color: #5865f2;
+    color: white;
 }
 
 .chat-container {
@@ -116,6 +127,38 @@ body {
     background-color: #40444b;
     border-radius: 5px;
     color: #fff;
+    position: relative;
+}
+
+.message.my-message {
+    background-color: #5865f2;
+    margin-left: 20px;
+}
+
+.message-user {
+    font-weight: bold;
+    margin-right: 8px;
+    color: #b9bbbe;
+}
+
+.my-message .message-user {
+    color: #fff;
+}
+
+.message-text {
+    word-break: break-word;
+}
+
+.message-time {
+    font-size: 0.8em;
+    color: #72767d;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.my-message .message-time {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .input-container {
