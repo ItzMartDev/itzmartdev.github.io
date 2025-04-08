@@ -1,4 +1,4 @@
-import { auth, db } from './firebase-config.js';
+import { db } from './firebase-config.js';
 import { 
     collection, 
     addDoc, 
@@ -8,12 +8,8 @@ import {
     serverTimestamp,
     doc,
     setDoc,
-    updateDoc,
-    deleteDoc,
-    where,
-    getDocs
+    limit
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 
 const messagesDiv = document.getElementById('messages');
 const messageInput = document.getElementById('messageInput');
@@ -25,7 +21,7 @@ const usernameInput = document.getElementById('usernameInput');
 const loginButton = document.getElementById('loginButton');
 
 let username = '';
-let userRef = null;
+let activeUsers = new Set();
 
 // Gerenciar login
 loginButton.addEventListener('click', async () => {
@@ -42,81 +38,94 @@ loginButton.addEventListener('click', async () => {
 
 // Inicializar chat
 async function initializeChat() {
-    // Adicionar usuário à lista de usuários online
-    userRef = doc(db, 'users', username);
-    await setDoc(userRef, {
-        online: true,
-        lastSeen: serverTimestamp(),
-        timestamp: serverTimestamp()
-    });
+    try {
+        // Registrar usuário
+        await setDoc(doc(db, 'users', username), {
+            lastActive: serverTimestamp()
+        });
 
-    // Atualizar status periodicamente para manter "online"
-    setInterval(async () => {
-        if (userRef) {
-            await updateDoc(userRef, {
-                lastSeen: serverTimestamp()
+        // Atualizar status a cada 30 segundos
+        setInterval(async () => {
+            try {
+                await setDoc(doc(db, 'users', username), {
+                    lastActive: serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+            }
+        }, 30000);
+
+        // Carregar mensagens
+        const messagesQuery = query(
+            collection(db, 'messages'),
+            orderBy('timestamp', 'desc'),
+            limit(50)
+        );
+
+        onSnapshot(messagesQuery, (snapshot) => {
+            const messages = [];
+            snapshot.forEach((doc) => {
+                messages.unshift(doc.data()); // Inverter ordem para mostrar mais recentes por último
             });
-        }
-    }, 30000);
-
-    // Limpar usuários inativos
-    setInterval(async () => {
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60000);
-        const q = query(collection(db, 'users'), where('lastSeen', '<', fiveMinutesAgo));
-        const snapshot = await getDocs(q);
-        snapshot.forEach((doc) => {
-            deleteDoc(doc.ref);
+            
+            updateMessages(messages);
+        }, (error) => {
+            console.error("Erro ao carregar mensagens:", error);
         });
-    }, 60000);
 
-    // Ouvir mudanças na lista de usuários
-    const usersQuery = query(collection(db, 'users'), orderBy('timestamp', 'desc'));
-    onSnapshot(usersQuery, (snapshot) => {
-        userList.innerHTML = '';
-        snapshot.forEach((doc) => {
-            const userData = doc.data();
-            const userElement = document.createElement('li');
-            userElement.textContent = doc.id;
-            if (doc.id === username) {
-                userElement.textContent += ' (você)';
-                userElement.classList.add('current-user');
-            }
-            userList.appendChild(userElement);
+        // Monitorar usuários ativos
+        const usersQuery = query(collection(db, 'users'));
+        onSnapshot(usersQuery, (snapshot) => {
+            const users = new Set();
+            snapshot.forEach((doc) => {
+                users.add(doc.id);
+            });
+            updateUserList(users);
+        }, (error) => {
+            console.error("Erro ao carregar usuários:", error);
         });
-    });
 
-    // Ouvir novas mensagens
-    const messagesQuery = query(collection(db, 'messages'), orderBy('timestamp', 'asc'));
-    onSnapshot(messagesQuery, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            if (change.type === 'added') {
-                const message = change.doc.data();
-                const messageElement = document.createElement('div');
-                messageElement.className = 'message';
-                if (message.userName === username) {
-                    messageElement.classList.add('my-message');
-                }
-                messageElement.innerHTML = `
-                    <span class="message-user">${message.userName}</span>
-                    <span class="message-text">${message.text}</span>
-                    <span class="message-time">${formatTime(message.timestamp)}</span>
-                `;
-                messagesDiv.appendChild(messageElement);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }
-        });
-    });
+    } catch (error) {
+        console.error('Erro ao inicializar chat:', error);
+        alert('Erro ao conectar ao chat. Por favor, tente novamente.');
+    }
 }
 
-// Formatar hora da mensagem
-function formatTime(timestamp) {
-    if (!timestamp) return '';
-    const date = timestamp.toDate();
-    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+function updateMessages(messages) {
+    messagesDiv.innerHTML = '';
+    messages.forEach((message) => {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+        if (message.userName === username) {
+            messageElement.classList.add('my-message');
+        }
+        
+        const time = message.timestamp ? new Date(message.timestamp.toDate()).toLocaleTimeString() : '';
+        
+        messageElement.innerHTML = `
+            <span class="message-user">${message.userName}</span>
+            <span class="message-text">${message.text}</span>
+            <span class="message-time">${time}</span>
+        `;
+        messagesDiv.appendChild(messageElement);
+    });
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function updateUserList(users) {
+    userList.innerHTML = '';
+    Array.from(users).sort().forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = user + (user === username ? ' (você)' : '');
+        if (user === username) {
+            li.classList.add('current-user');
+        }
+        userList.appendChild(li);
+    });
 }
 
 // Enviar mensagem
-sendButton.addEventListener('click', async () => {
+async function sendMessage() {
     const message = messageInput.value.trim();
     if (message && username) {
         try {
@@ -128,20 +137,30 @@ sendButton.addEventListener('click', async () => {
             messageInput.value = '';
         } catch (error) {
             console.error('Erro ao enviar mensagem:', error);
+            alert('Erro ao enviar mensagem. Tente novamente.');
         }
     }
-});
+}
 
-// Enviar mensagem com Enter
+// Event listeners
+sendButton.addEventListener('click', sendMessage);
 messageInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-        sendButton.click();
+        sendMessage();
     }
 });
 
-// Gerenciar desconexão
-window.addEventListener('beforeunload', async () => {
-    if (userRef) {
-        await deleteDoc(userRef);
+// Limpar status ao sair
+window.addEventListener('beforeunload', () => {
+    if (username) {
+        try {
+            fetch(`https://${window.location.hostname}/cleanup`, {
+                method: 'POST',
+                body: JSON.stringify({ username }),
+                keepalive: true
+            });
+        } catch (error) {
+            console.error('Erro ao limpar status:', error);
+        }
     }
 }); 
