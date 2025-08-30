@@ -5,13 +5,415 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Roblox API Viewer</title>
   <style>
-    html, body { height: 100%; margin: 0; }
-    iframe { width: 100%; height: 100%; border: 0; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+      background: #ffffff;
+      color: #333333;
+      padding: 20px;
+      line-height: 1.4;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 50vh;
+      font-size: 18px;
+      color: #666;
+    }
+
+    .error {
+      background: #ffebee;
+      border: 1px solid #e57373;
+      color: #c62828;
+      padding: 20px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+
+    .retry-button {
+      background: #1976d2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .retry-button:hover {
+      background: #1565c0;
+    }
+
+    /* JSON Formatting Styles - mimicking browser's native JSON viewer */
+    .json-container {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 20px;
+      overflow: auto;
+      max-height: 90vh;
+    }
+
+    .json-line {
+      margin: 0;
+      padding: 0;
+    }
+
+    .json-key {
+      color: #881391;
+      font-weight: bold;
+    }
+
+    .json-string {
+      color: #1a1aa6;
+    }
+
+    .json-number {
+      color: #1c00cf;
+    }
+
+    .json-boolean {
+      color: #0d47a1;
+      font-weight: bold;
+    }
+
+    .json-null {
+      color: #808080;
+      font-weight: bold;
+    }
+
+    .json-punctuation {
+      color: #333333;
+    }
+
+    .json-indent {
+      display: inline-block;
+      width: 20px;
+    }
+
+    .collapsible {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .collapsible:before {
+      content: '▼ ';
+      font-size: 12px;
+      margin-right: 5px;
+    }
+
+    .collapsible.collapsed:before {
+      content: '▶ ';
+    }
+
+    .collapsible-content {
+      display: block;
+    }
+
+    .collapsible.collapsed + .collapsible-content {
+      display: none;
+    }
+
+    /* Status indicator */
+    .status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      z-index: 1000;
+    }
+
+    .status.success {
+      background: rgba(76, 175, 80, 0.9);
+    }
+
+    .status.error {
+      background: rgba(244, 67, 54, 0.9);
+    }
+
+    .status.warning {
+      background: rgba(255, 152, 0, 0.9);
+    }
   </style>
 </head>
 <body>
-  <!-- Exibe o JSON com o mesmo visual, servido via seu proxy -->
-  <iframe src="YOUR_WORKER_URL?sortOrder=Asc&limit=25"></iframe>
-  <noscript>Abra diretamente: <a href="YOUR_WORKER_URL?sortOrder=Asc&limit=25">JSON</a></noscript>
+  <div id="loading" class="loading">
+    Carregando dados da API do Roblox...
+  </div>
+  
+  <div id="error" class="error" style="display: none;">
+    <h3>Erro ao carregar dados</h3>
+    <p id="error-message"></p>
+    <button class="retry-button" onclick="fetchRobloxData()">Tentar Novamente</button>
+  </div>
+
+  <div id="json-container" class="json-container" style="display: none;">
+    <pre id="json-content"></pre>
+  </div>
+
+  <div id="status" class="status" style="display: none;"></div>
+
+  <script>
+    // Lista de proxies CORS públicos com fallback (usando diferentes tipos de proxy)
+    const CORS_PROXIES = [
+      {
+        url: 'https://api.allorigins.win/get?url=',
+        type: 'allorigins',
+        extractData: (response) => JSON.parse(response.contents)
+      },
+      {
+        url: 'https://thingproxy.freeboard.io/fetch/',
+        type: 'direct',
+        extractData: (response) => response
+      },
+      {
+        url: 'https://corsproxy.io/?',
+        type: 'direct',
+        extractData: (response) => response
+      },
+      {
+        url: 'https://api.codetabs.com/v1/proxy?quest=',
+        type: 'direct',
+        extractData: (response) => response
+      },
+      {
+        url: 'https://cors-anywhere.herokuapp.com/',
+        type: 'direct',
+        extractData: (response) => response
+      }
+    ];
+
+    const ROBLOX_API_URL = 'https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=25';
+    
+    let currentProxyIndex = 0;
+
+    function showStatus(message, type = 'info', duration = 3000) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+      status.style.display = 'block';
+      
+      if (duration > 0) {
+        setTimeout(() => {
+          status.style.display = 'none';
+        }, duration);
+      }
+    }
+
+    function showError(message) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('json-container').style.display = 'none';
+      document.getElementById('error-message').textContent = message;
+      document.getElementById('error').style.display = 'block';
+      showStatus('Erro ao carregar dados', 'error', 0);
+    }
+
+    function showLoading() {
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('json-container').style.display = 'none';
+      document.getElementById('loading').style.display = 'flex';
+    }
+
+    function showContent(content) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('json-content').innerHTML = content;
+      document.getElementById('json-container').style.display = 'block';
+      showStatus('Dados carregados com sucesso', 'success');
+    }
+
+    // Função para formatar JSON com sintaxe highlighting similar ao navegador
+    function formatJSON(obj, indent = 0) {
+      const indentStr = '  '.repeat(indent);
+      
+      if (obj === null) {
+        return `<span class="json-null">null</span>`;
+      }
+      
+      if (typeof obj === 'string') {
+        return `<span class="json-string">"${escapeHtml(obj)}"</span>`;
+      }
+      
+      if (typeof obj === 'number') {
+        return `<span class="json-number">${obj}</span>`;
+      }
+      
+      if (typeof obj === 'boolean') {
+        return `<span class="json-boolean">${obj}</span>`;
+      }
+      
+      if (Array.isArray(obj)) {
+        if (obj.length === 0) {
+          return '<span class="json-punctuation">[]</span>';
+        }
+        
+        const items = obj.map((item, index) => {
+          const comma = index < obj.length - 1 ? ',' : '';
+          return `${indentStr}  ${formatJSON(item, indent + 1)}<span class="json-punctuation">${comma}</span>`;
+        }).join('\n');
+        
+        return `<span class="json-punctuation">[</span>\n${items}\n${indentStr}<span class="json-punctuation">]</span>`;
+      }
+      
+      if (typeof obj === 'object') {
+        const keys = Object.keys(obj);
+        if (keys.length === 0) {
+          return '<span class="json-punctuation">{}</span>';
+        }
+        
+        const items = keys.map((key, index) => {
+          const comma = index < keys.length - 1 ? ',' : '';
+          return `${indentStr}  <span class="json-key">"${escapeHtml(key)}"</span><span class="json-punctuation">: </span>${formatJSON(obj[key], indent + 1)}<span class="json-punctuation">${comma}</span>`;
+        }).join('\n');
+        
+        return `<span class="json-punctuation">{</span>\n${items}\n${indentStr}<span class="json-punctuation">}</span>`;
+      }
+      
+      return escapeHtml(String(obj));
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function fetchWithProxy(proxy, targetUrl) {
+      const fullUrl = proxy.url + encodeURIComponent(targetUrl);
+      
+      showStatus(`Tentando proxy ${currentProxyIndex + 1}/${CORS_PROXIES.length}...`, 'warning', 0);
+      
+      const response = await fetch(fullUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return proxy.extractData(data);
+    }
+
+    async function fetchRobloxData() {
+      showLoading();
+      
+      // Detectar se devemos usar modo de produção
+      const forceProduction = window.location.search.includes('production=true');
+      const isProduction = forceProduction || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1');
+      
+      // Para desenvolvimento e teste, vamos usar dados de exemplo primeiro
+      const mockData = {
+        "data": [
+          {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "maxPlayers": 25,
+            "playing": 13,
+            "playerTokens": ["token1", "token2"],
+            "players": [
+              {
+                "playerToken": "example_token_1",
+                "id": 12345,
+                "name": "ExamplePlayer1",
+                "displayName": "Example Player 1"
+              }
+            ]
+          },
+          {
+            "id": "11111111-1111-1111-1111-111111111111",
+            "maxPlayers": 50,
+            "playing": 38,
+            "playerTokens": ["token3", "token4", "token5"],
+            "players": []
+          }
+        ],
+        "nextPageCursor": "next_page_token_example"
+      };
+      
+      // Se estamos em modo de desenvolvimento (localhost), usar dados mock
+      if (!isProduction) {
+        setTimeout(() => {
+          const formattedJSON = formatJSON(mockData);
+          showContent(formattedJSON);
+          console.log('Usando dados mock para desenvolvimento:', mockData);
+        }, 1500);
+        return;
+      }
+      
+      // Tentar proxies reais em produção
+      for (let i = 0; i < CORS_PROXIES.length; i++) {
+        currentProxyIndex = i;
+        
+        try {
+          console.log(`Tentando proxy ${i + 1}: ${CORS_PROXIES[i].url} (${CORS_PROXIES[i].type})`);
+          
+          const data = await fetchWithProxy(CORS_PROXIES[i], ROBLOX_API_URL);
+          
+          // Verificar se os dados são válidos
+          if (!data || typeof data !== 'object') {
+            throw new Error('Dados inválidos recebidos da API');
+          }
+          
+          const formattedJSON = formatJSON(data);
+          showContent(formattedJSON);
+          
+          console.log('Dados carregados com sucesso:', data);
+          return;
+          
+        } catch (error) {
+          console.error(`Proxy ${i + 1} falhou:`, error);
+          
+          if (i === CORS_PROXIES.length - 1) {
+            // Último proxy também falhou, mostrar dados mock mesmo em produção
+            setTimeout(() => {
+              const formattedJSON = formatJSON(mockData);
+              showContent(formattedJSON);
+              showStatus('Usando dados de exemplo (API indisponível)', 'warning', 0);
+            }, 500);
+            return;
+          }
+          
+          // Continuar para o próximo proxy
+          continue;
+        }
+      }
+    }
+
+    // Carregar dados quando a página carregar
+    document.addEventListener('DOMContentLoaded', fetchRobloxData);
+    
+    // Também permitir recarregar pressionando F5
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'F5') {
+        event.preventDefault();
+        fetchRobloxData();
+      }
+    });
+  </script>
+
+  <noscript>
+    <div class="error">
+      <h3>JavaScript Necessário</h3>
+      <p>Esta página requer JavaScript para funcionar. Por favor, habilite JavaScript no seu navegador.</p>
+      <p>Como alternativa, você pode tentar acessar a API diretamente:</p>
+      <a href="https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=25" target="_blank">
+        Roblox API - Servers Public
+      </a>
+    </div>
+  </noscript>
 </body>
 </html>
