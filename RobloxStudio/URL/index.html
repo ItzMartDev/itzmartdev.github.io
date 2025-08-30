@@ -1,187 +1,22 @@
 <!doctype html>
 <html lang="pt-br">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>JSON Fetcher</title>
-  <style>
-    :root { color-scheme: light dark; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
-    header, main { max-width: 920px; margin: 0 auto; padding: 16px; }
-    header { border-bottom: 1px solid #d0d7de22; }
-    h1 { font-size: 18px; margin: 0; }
-    form { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
-    input[type="url"] { flex: 1; min-width: 260px; padding: 8px; }
-    button { padding: 8px 12px; }
-    label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
-    .hint { font-size: 13px; opacity: .8; margin: 8px 0 12px; }
-    pre { margin: 0; padding: 16px; overflow: auto; border-top: 1px solid #d0d7de22; }
-    .error { color: #b00020; white-space: pre-wrap; }
-    .muted { opacity: .7; }
-    a { color: #0969da; }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Retornar JSON a partir de um link</h1>
-    <div class="hint">
-      Modos de uso (cole o link do destino depois do seu link):
-      <div>- /==https://exemplo.com/api?x=1&y=2  (exige 404.html para não dar 404 visual)</div>
-      <div>- ?url=https%3A%2F%2Fexemplo.com%2Fapi%3Fx%3D1%26y%3D2  (recomendado, sem 404)</div>
-      <div class="muted">Ex.: /RobloxStudio/URL/?url=https%3A%2F%2Fgames.roblox.com%2Fv1%2Fgames%2F142823291%2Fservers%2FPublic%3FsortOrder%3DAsc%26limit%3D25</div>
-    </div>
-    <form id="form">
-      <input id="inputUrl" type="url" placeholder="https://cole-aqui-o-link-da-api..." required />
-      <label title="Usa api.allorigins.win como fallback, útil se a API bloquear CORS">
-        <input id="useProxy" type="checkbox" /> Usar proxy CORS se necessário
-      </label>
-      <button type="submit">Buscar</button>
-    </form>
-  </header>
-
-  <main>
-    <pre id="output" class="muted">Aguardando link…</pre>
-  </main>
-
-  <script>
-    function tryDecodeURIComponent(s) {
-      try { return decodeURIComponent(s); } catch { return s; }
-    }
-
-    // Extrai a URL alvo da localização atual, suportando:
-    // - ?url=...
-    // - ?=https://...
-    // - hash "#=https://..." ou "#url=..."
-    // - path com um segmento que começa com "=" em QUALQUER profundidade:
-    //   .../URL/=https://exemplo.com/api?...
-    //   .../URL/=https%3A%2F%2Fexemplo.com%2Fapi%3F...
-    function extractTargetFromLocation() {
-      const u = new URL(window.location.href);
-
-      // 1) Query params
-      const sp = u.searchParams;
-      if (sp.has('url')) return sp.get('url');
-      if (sp.has('u')) return sp.get('u');
-
-      if (u.search.startsWith('?=')) {
-        const raw = u.search.slice(2);
-        const amp = raw.indexOf('&');
-        const candidate = amp === -1 ? raw : raw.slice(0, amp);
-        return candidate.replace(/^["']|["']$/g, '');
-      }
-
-      // 2) Hash
-      if (u.hash) {
-        const h = u.hash.replace(/^#/, '');
-        if (h.startsWith('=') || h.startsWith('url=') || h.startsWith('u=')) {
-          const candidate = h.replace(/^(=|url=|u=)/, '');
-          return candidate.replace(/^["']|["']$/g, '');
-        }
-      }
-
-      // 3) Path segment começando com "=" em qualquer nível
-      // Não removemos segmentos vazios para detectar "https://"
-      const segs = u.pathname.split('/');
-      const idx = segs.findIndex(s => s && s.startsWith('='));
-      if (idx !== -1) {
-        const first = segs[idx].slice(1); // sem "="
-
-        // Caso raw: "=https:" + "" + "host" + ...
-        if (/^https?:$/i.test(first)) {
-          const rest = segs.slice(idx + 1); // pode ter "" após "https:" por causa do "//"
-          const rebuilt = first + '//' + rest.join('/');
-          return rebuilt + (u.search || '') + (u.hash || '');
-        }
-
-        // Caso codificado: "=https%3A%2F%2F..."
-        const decoded = tryDecodeURIComponent(first);
-        if (/^https?:\/\//i.test(decoded)) {
-          // Se houver query/hash na URL do site, provavelmente pertencem ao destino
-          return decoded + (u.search || '') + (u.hash || '');
-        }
-      }
-
-      return null;
-    }
-
-    function toPrettyJson(text, contentType) {
-      if ((contentType || '').includes('json')) {
-        try { return JSON.stringify(JSON.parse(text), null, 2); } catch {}
-      }
-      try { return JSON.stringify(JSON.parse(text), null, 2); } catch {}
-      return text;
-    }
-
-    async function fetchText(url) {
-      const res = await fetch(url, { headers: { 'Accept': 'application/json,*/*' } });
-      const text = await res.text();
-      return { ok: res.ok, status: res.status, text, contentType: res.headers.get('content-type') || '' };
-    }
-
-    async function fetchAndRender(target, useProxy) {
-      const out = document.getElementById('output');
-      document.title = 'Buscando…';
-      out.classList.remove('error'); out.classList.remove('muted');
-      out.textContent = 'Buscando: ' + target + '\n';
-
-      try {
-        let r;
-        try {
-          r = await fetchText(target);
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-        } catch (e) {
-          if (!useProxy) throw e;
-          const proxied = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target);
-          r = await fetchText(proxied);
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-        }
-
-        const pretty = toPrettyJson(r.text, r.contentType);
-        out.textContent = pretty;
-        document.title = 'JSON carregado';
-      } catch (err) {
-        out.classList.add('error');
-        out.textContent =
-          'Erro ao buscar o recurso.\n' +
-          'Motivos comuns: CORS bloqueado pela API ou URL inválida.\n\n' +
-          'Dica: Marque "Usar proxy CORS" ou use ?url= com a URL codificada.\n\n' +
-          'Detalhes: ' + (err && err.message ? err.message : String(err));
-        document.title = 'Erro';
-      }
-    }
-
-    function setUpForm() {
-      const form = document.getElementById('form');
-      const input = document.getElementById('inputUrl');
-      const useProxy = document.getElementById('useProxy');
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const t = input.value.trim();
-        if (!t) return;
-
-        // Gera um link estável usando ?url= (evita 404 sem precisar de 404.html)
-        const next = new URL(window.location.href);
-        next.search = '';
-        next.hash = '';
-        next.searchParams.set('url', t);
-        if (useProxy.checked) next.searchParams.set('proxy', '1');
-        window.location.href = next.toString();
-      });
-    }
-
-    (function init() {
-      setUpForm();
-      const target = extractTargetFromLocation();
-      const sp = new URLSearchParams(window.location.search);
-      const proxyFlag = sp.get('proxy') === '1' || sp.get('cors') === '1';
-      document.getElementById('useProxy').checked = proxyFlag;
-
-      if (target) {
-        document.getElementById('inputUrl').value = target;
-        fetchAndRender(target, proxyFlag);
-      }
-    })();
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecionando para JSON da API do Roblox…</title>
+    <!-- Redireciona imediatamente para a API (mostra o JSON original) -->
+    <meta http-equiv="refresh" content="0; url=https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=25" />
+    <script>
+      // Fallback de redirecionamento via JS
+      window.location.replace("https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=25");
+    </script>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+      a { color: #0969da; }
+    </style>
+  </head>
+  <body>
+    Redirecionando para a API do Roblox…
+    <br />
+    Se não redirecionar automaticamente, <a href="https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=25">clique aqui</a>.
+  </body>
 </html>
