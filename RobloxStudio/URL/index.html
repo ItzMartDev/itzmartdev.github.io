@@ -1,22 +1,17 @@
 <!doctype html>
 <html lang="pt-br">
-  <head>
-    <meta charset="utf-8" />
-    <title>Redirecionando para JSON da API do Roblox…</title>
-    <!-- Redireciona imediatamente para a API (mostra o JSON original) -->
-    <meta http-equiv="refresh" content="0; url=https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=25" />
-    <script>
-      // Fallback de redirecionamento via JS
-      window.location.replace("https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=25");
-    </script>
-    <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
-      a { color: #0969da; }
-    </style>
-  </head>
-  <body>
-    Redirecionando para a API do Roblox…
-    <br />
-    Se não redirecionar automaticamente, <a href="https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=25">clique aqui</a>.
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Roblox API Viewer</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    iframe { width: 100%; height: 100%; border: 0; }
+  </style>
+</head>
+<body>
+  <!-- Exibe o JSON com o mesmo visual, servido via seu proxy -->
+  <iframe src="YOUR_WORKER_URL?sortOrder=Asc&limit=25"></iframe>
+  <noscript>Abra diretamente: <a href="YOUR_WORKER_URL?sortOrder=Asc&limit=25">JSON</a></noscript>
+</body>
 </html>
