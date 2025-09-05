@@ -1,34 +1,62 @@
-# Torrent Web Lite
+# 🌊 Torrent Web Lite
 
-Cliente WebTorrent 100% estático, compatível com GitHub Pages.
+Cliente WebTorrent 100% estático com design moderno, compatível com GitHub Pages.
 
-Avisos importantes:
-- Funciona somente com peers via WebRTC (WebTorrent). Nem todos os torrents tradicionais terão peers WebRTC.
-- Seu IP fica visível para peers (como em todo P2P). Use de forma legal e responsável.
-- Projeto educacional. Não incentive ou participe de pirataria.
+## ✨ Características
 
-## Como usar
-1. Abra `index.html` localmente ou publique no GitHub Pages.
-2. Cole um magnet link (que tenha suporte WebRTC) ou solte um arquivo `.torrent`.
-3. Clique em "Stream" para reproduzir mídia suportada (mp4/webm/ogg, mp3/m4a/wav) ou use "Baixar" para salvar o arquivo.
+- 🎨 **Design Moderno**: Interface escura com gradientes, animações e responsividade
+- 🚀 **Streaming Direto**: Reproduza vídeos e áudios diretamente no navegador
+- 📱 **Responsivo**: Funciona perfeitamente em desktop e mobile
+- 🔒 **Privado**: 100% local, sem uploads para servidores
+- ⚡ **Rápido**: Carregamento otimizado e feedback visual em tempo real
+- 🆓 **Gratuito**: Hospedagem gratuita no GitHub Pages
 
-## Deploy no GitHub Pages (versão gratuita)
-- Faça commit destes arquivos em um repositório GitHub público.
-- Ative o Pages nas configurações do repositório, apontando para a branch principal (raiz).
-- Opcional: inclua `CNAME` se tiver domínio próprio.
+## 🚀 Como usar
 
-Dicas:
-- Mantenha a pasta na raiz do repositório (ou ajuste a publicação para a pasta correspondente).
-- Não é necessário backend; tudo roda no navegador.
+1. Abra `index.html` em um navegador moderno (Chrome/Firefox recomendado)
+2. Cole um magnet link ou solte um arquivo `.torrent`
+3. Aguarde a conexão com peers WebRTC
+4. Clique em "🎬 Stream" para reproduzir ou "💾 Baixar" para salvar
 
-## Limitações conhecidas
-- Trackers UDP não funcionam no navegador; apenas trackers WebSocket (wss://).
-- Alguns torrents podem nunca conectar se não há seeds com WebRTC.
-- Navegadores móveis podem suspender downloads em segundo plano.
+## 📊 Status em Tempo Real
 
-## Desenvolvimento
-- `app.js` contém a lógica principal (UI + WebTorrent).
-- `styles.css` cuida do visual com um tema escuro.
+- ⬇️ Velocidade de download
+- ⬆️ Velocidade de upload
+- 👥 Número de peers conectados
+- 📊 Progresso de cada torrent
+- 🔄 Estados: Conectando, Baixando, Completo, etc.
 
-## Licença
-MIT. Use por sua conta e risco. Conteúdo baixado via torrents deve respeitar direitos autorais.
+## ⚠️ Limitações Importantes
+
+- **WebRTC Obrigatório**: Só funciona com torrents que têm peers WebRTC
+- **Compatibilidade**: Melhor em Chrome/Firefox
+- **Privacidade**: IP visível para peers (como qualquer P2P)
+- **Sem UDP**: Trackers UDP não funcionam no navegador
+
+## 🛠️ Desenvolvimento
+
+- `index.html` - Estrutura e layout
+- `styles.css` - Design moderno com CSS custom properties
+- `app.js` - Lógica WebTorrent e interações
+- `favicon.ico` - Ícone do site
+
+## 📦 Deploy no GitHub Pages
+
+1. Faça upload dos arquivos para um repositório público
+2. Ative GitHub Pages nas configurações
+3. Acesse via `https://username.github.io/repository`
+
+## 🔧 Tecnologias
+
+- **WebTorrent**: Cliente P2P para navegador
+- **Vanilla JavaScript**: Sem frameworks externos
+- **CSS Grid/Flexbox**: Layout responsivo
+- **CSS Custom Properties**: Tema consistente
+
+## 📝 Licença
+
+MIT - Use por sua conta e risco. Conteúdo baixado deve respeitar direitos autorais.
+
+---
+
+**Aviso**: Este projeto é educacional. Não incentive ou participe de pirataria.

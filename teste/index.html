@@ -13,77 +13,77 @@
   <body>
     <header class="app-header">
       <div class="container header-inner">
-        <h1>🎬 Torrent Web Lite</h1>
+        <h1>� Torrent Web Lite</h1>
         <nav class="header-actions">
-          <a href="#" id="toggleHelp" aria-label="Ajuda">Ajuda</a>
-          <a href="https://webtorrent.io" target="_blank" rel="noopener">WebTorrent</a>
-          <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+          <a href="#" id="toggleHelp" aria-label="Ajuda">📚 Ajuda</a>
+          <a href="https://webtorrent.io" target="_blank" rel="noopener">🔗 WebTorrent</a>
+          <a href="https://github.com" target="_blank" rel="noopener">🐙 GitHub</a>
         </nav>
       </div>
     </header>
 
     <main class="container">
       <section class="adder" aria-labelledby="add-torrent-title">
-        <h2 id="add-torrent-title">Adicionar Torrent</h2>
+        <h2 id="add-torrent-title">🚀 Adicionar Torrent</h2>
         <div class="adder-row">
           <input id="magnetInput" type="text" inputmode="url" placeholder="Cole um magnet link aqui (ex.: magnet:?xt=urn:btih:...)" aria-label="Magnet link" />
-          <button id="addMagnetBtn" class="primary">Adicionar</button>
+          <button id="addMagnetBtn" class="primary">➕ Adicionar</button>
           <div class="or">ou</div>
           <label class="file-btn">
             <input id="torrentFileInput" type="file" accept=".torrent" hidden />
-            <span class="secondary">Escolher .torrent</span>
+            <span class="secondary">📁 Escolher .torrent</span>
           </label>
         </div>
         <div id="dropArea" class="drop-area" tabindex="0" aria-label="Solte um arquivo .torrent aqui">
-          Arraste e solte um arquivo .torrent aqui
+          📂 Arraste e solte um arquivo .torrent aqui
         </div>
-        <p class="hint">Tudo roda 100% no seu navegador. Não há upload de arquivos para servidores.</p>
+        <p class="hint">🔒 Tudo roda 100% no seu navegador. Não há upload de arquivos para servidores.</p>
       </section>
 
       <section class="stats" aria-live="polite">
         <div id="globalStats" class="stats-row">
-          <div><strong>Baixando:</strong> <span id="dlSpeed">0 B/s</span></div>
-          <div><strong>Enviando:</strong> <span id="upSpeed">0 B/s</span></div>
-          <div><strong>Peers:</strong> <span id="peers">0</span></div>
-          <div><strong>Torrents:</strong> <span id="tcount">0</span></div>
+          <div><strong>⬇️ Baixando</strong> <span id="dlSpeed">0 B/s</span></div>
+          <div><strong>⬆️ Enviando</strong> <span id="upSpeed">0 B/s</span></div>
+          <div><strong>👥 Peers</strong> <span id="peers">0</span></div>
+          <div><strong>📊 Torrents</strong> <span id="tcount">0</span></div>
         </div>
       </section>
 
       <section>
-        <h2>Torrents</h2>
+        <h2>📥 Torrents</h2>
         <div id="torrents" class="torrents">
           <div class="loading-state">
-            <p>Carregando WebTorrent... Aguarde alguns segundos.</p>
+            <p>⏳ Carregando WebTorrent... Aguarde alguns segundos.</p>
             <div class="spinner" style="margin: 10px auto;"></div>
           </div>
-          <p class="empty-state" style="display: none;">Nenhum torrent adicionado ainda. Cole um magnet link ou solte um arquivo .torrent acima.</p>
+          <p class="empty-state" style="display: none;">📭 Nenhum torrent adicionado ainda. Cole um magnet link ou solte um arquivo .torrent acima.</p>
         </div>
       </section>
 
       <section id="playerSection" class="player hidden" aria-labelledby="player-title">
-        <h2 id="player-title">Reprodutor</h2>
+        <h2 id="player-title">🎬 Reprodutor</h2>
         <video id="player" controls playsinline></video>
         <div class="player-controls">
-          <button id="stopPlayer">Fechar player</button>
-          <a id="downloadCurrent" class="secondary" href="#" download>Baixar arquivo atual</a>
+          <button id="stopPlayer">⏹️ Fechar player</button>
+          <a id="downloadCurrent" class="secondary" href="#" download>💾 Baixar arquivo atual</a>
         </div>
       </section>
 
       <section id="help" class="help hidden">
-        <h2>Ajuda & Limitações</h2>
+        <h2>📚 Ajuda & Limitações</h2>
         <ul>
-          <li><strong>Como usar:</strong> Cole um magnet link ou solte um arquivo .torrent. Aguarde a conexão com peers.</li>
-          <li><strong>WebRTC necessário:</strong> Funciona apenas com torrents que têm peers WebRTC. Nem todos os torrents tradicionais funcionam.</li>
-          <li><strong>Streaming:</strong> Clique em "Stream" para reproduzir vídeos/áudios suportados (mp4/webm/ogg/mp3/m4a/wav).</li>
-          <li><strong>Problemas comuns:</strong>
+          <li><strong>🚀 Como usar:</strong> Cole um magnet link ou solte um arquivo .torrent. Aguarde a conexão com peers.</li>
+          <li><strong>🌐 WebRTC necessário:</strong> Funciona apenas com torrents que têm peers WebRTC. Nem todos os torrents tradicionais funcionam.</li>
+          <li><strong>🎬 Streaming:</strong> Clique em "Stream" para reproduzir vídeos/áudios suportados (mp4/webm/ogg/mp3/m4a/wav).</li>
+          <li><strong>⚠️ Problemas comuns:</strong>
             <ul>
               <li>Se "Nenhum peer encontrado": O torrent pode não ter suporte WebRTC ou estar offline.</li>
               <li>Se "Conexão lenta": Alguns trackers estão offline. Tente novamente mais tarde.</li>
               <li>Se erro no stream: O arquivo pode não ser compatível ou corrompido.</li>
             </ul>
           </li>
-          <li><strong>Privacidade:</strong> Seu IP é visível para peers (como qualquer P2P). Use VPN se necessário.</li>
-          <li><strong>Suporte:</strong> Funciona melhor em Chrome/Firefox. Edge/Safari podem ter limitações.</li>
+          <li><strong>🔒 Privacidade:</strong> Seu IP é visível para peers (como qualquer P2P). Use VPN se necessário.</li>
+          <li><strong>💻 Compatibilidade:</strong> Melhor em Chrome/Firefox. Edge/Safari podem ter limitações.</li>
         </ul>
       </section>
     </main>
@@ -91,7 +91,7 @@
     <footer class="app-footer">
       <div class="container">
         <small>
-          Feito com WebTorrent. Hospedável no GitHub Pages (estático). Este projeto é educacional e não incentiva pirataria.
+          🛠️ Feito com WebTorrent. Hospedável no GitHub Pages (gratuito). Este projeto é educacional e não incentiva pirataria.
         </small>
       </div>
     </footer>

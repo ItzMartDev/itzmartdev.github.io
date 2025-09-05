@@ -53,7 +53,6 @@ const DEFAULT_ANNOUNCE = [
   'wss://tracker.webtorrent.dev',
   'wss://tracker.files.fm:7073/announce',
   'wss://tracker.openbittorrent.com',
-  'wss://tracker.fastcast.nz',
   'wss://tracker.sloppyta.co:443/announce',
   'wss://tracker.novage.com.ua:443/announce',
   'wss://tracker.torrent.eu.org:451/announce',
@@ -70,45 +69,7 @@ const DEFAULT_ANNOUNCE = [
   'wss://tracker.theoks.net:443/announce',
   'wss://tracker.tryhackx.org:443/announce',
   'wss://tracker.xerebrov.net:443/announce',
-  'wss://tracker.zemoj.com:443/announce',
-  'wss://tracker1.myporn.club:443/announce',
-  'wss://tracker2.myporn.club:443/announce',
-  'wss://tracker.pussytorrents.org:443/announce',
-  'wss://tracker.therarbg.to:443/announce',
-  'wss://tracker.ipv6tracker.ru:80/announce',
-  'wss://tracker.coppersurfer.tk:6969/announce',
-  'wss://tracker.leechers-paradise.org:6969/announce',
-  'wss://tracker.internetwarriors.net:1337/announce',
-  'wss://tracker.zer0day.to:1337/announce',
-  'wss://tracker.nwps.ws:6969/announce',
-  'wss://tracker.mg64.net:6969/announce',
-  'wss://tracker.cyberia.is:6969/announce',
-  'wss://tracker.moeking.me:6969/announce',
-  'wss://tracker.netmap.top:6969/announce',
-  'wss://tracker.v6speed.org:6969/announce',
-  'wss://tracker.lelux.fi:6969/announce',
-  'wss://tracker.opentrackr.org:1337/announce',
-  'wss://tracker.pomf.se:6969/announce',
-  'wss://tracker.srv00.com:6969/announce',
-  'wss://tracker.theoks.net:6969/announce',
-  'wss://tracker.tryhackx.org:6969/announce',
-  'wss://tracker.xerebrov.net:6969/announce',
-  'wss://tracker.zemoj.com:6969/announce',
-  'wss://tracker1.myporn.club:6969/announce',
-  'wss://tracker2.myporn.club:6969/announce',
-  'wss://tracker.pussytorrents.org:6969/announce',
-  'wss://tracker.therarbg.to:6969/announce',
-  'wss://tracker.ipv6tracker.ru:80/announce',
-  'wss://tracker.coppersurfer.tk:6969/announce',
-  'wss://tracker.leechers-paradise.org:6969/announce',
-  'wss://tracker.internetwarriors.net:1337/announce',
-  'wss://tracker.zer0day.to:1337/announce',
-  'wss://tracker.nwps.ws:6969/announce',
-  'wss://tracker.mg64.net:6969/announce',
-  'wss://tracker.cyberia.is:6969/announce',
-  'wss://tracker.moeking.me:6969/announce',
-  'wss://tracker.netmap.top:6969/announce',
-  'wss://tracker.v6speed.org:6969/announce'
+  'wss://tracker.zemoj.com:443/announce'
 ]
 
 function ensureClient() {
@@ -225,7 +186,7 @@ function renderTorrent(t) {
       <button data-pause>⏸️ Pausar</button>
       <button data-resume class="secondary">▶️ Retomar</button>
       <button data-remove class="secondary">🗑️ Remover</button>
-      <a data-magnet class="secondary" href="#">Magnet</a>
+      <a data-magnet class="secondary" href="#">🔗 Magnet</a>
     </div>
   `
   torrentsEl.prepend(card)
@@ -242,8 +203,8 @@ function renderTorrent(t) {
     row.className = 'file-row'
     row.innerHTML = `
       <div class="file-name">${escapeHtml(file.path)}</div>
-      <button data-stream ${isPlayable(file.name)?'':'disabled'}>Stream</button>
-      <a data-dl class="secondary" href="#" download>Baixar</a>
+      <button data-stream ${isPlayable(file.name)?'':'disabled'}>🎬 Stream</button>
+      <a data-dl class="secondary" href="#" download>💾 Baixar</a>
     `
     filesEl.appendChild(row)
 
@@ -301,6 +262,11 @@ function updateTorrentRow(t) {
 
 async function streamFile(t, file) {
   try {
+    // Limpar player anterior
+    player.pause()
+    player.removeAttribute('src')
+    player.load()
+
     currentFile = file
     playerSection.classList.remove('hidden')
     downloadCurrent.href = '#'
@@ -310,10 +276,10 @@ async function streamFile(t, file) {
 
     if (isPlayable(file.name)) {
       await new Promise((resolve, reject) => {
-        file.renderTo(player, { autoplay: true }, (err) => {
+        file.renderTo(player, { autoplay: false }, (err) => {
           if (err) {
-            // Ignorar erros de play interrompido
-            if (err.name === 'AbortError' || err.message.includes('interrupted')) {
+            // Ignorar erros de play interrompido ou load
+            if (err.name === 'AbortError' || err.message.includes('interrupted') || err.message.includes('load request')) {
               resolve()
             } else {
               reject(err)
@@ -323,7 +289,17 @@ async function streamFile(t, file) {
           }
         })
       })
-      toast('Stream iniciado!', 'success')
+
+      // Tentar play manualmente após render
+      try {
+        await player.play()
+        toast('Stream iniciado!', 'success')
+      } catch (playErr) {
+        if (playErr.name !== 'AbortError') {
+          console.warn('Play failed:', playErr)
+          toast('Clique em play para iniciar o vídeo', 'info')
+        }
+      }
     } else {
       const blob = await file.blob()
       const url = URL.createObjectURL(blob)
@@ -336,7 +312,7 @@ async function streamFile(t, file) {
     downloadCurrent.href = url
   } catch (e) {
     console.error('Erro no stream:', e)
-    if (e.name !== 'AbortError' && !e.message.includes('interrupted')) {
+    if (e.name !== 'AbortError' && !e.message.includes('interrupted') && !e.message.includes('load request')) {
       toast('Não foi possível reproduzir este arquivo: ' + (e?.message || e), 'error')
     }
   }
