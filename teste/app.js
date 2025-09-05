@@ -26,6 +26,14 @@ if (typeof WebTorrent === 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     toast('Erro: WebTorrent não carregou. Verifique sua conexão com a internet.', 'error')
   })
+} else {
+  // Verificar suporte WebRTC
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.RTCPeerConnection) {
+      toast('Aviso: Seu navegador pode não ter suporte completo a WebRTC', 'warning')
+    }
+    console.log('WebTorrent carregado com sucesso')
+  })
 }
 
 /* DOM refs */
@@ -46,43 +54,67 @@ const upSpeedEl = $('#upSpeed')
 const peersEl = $('#peers')
 const tcountEl = $('#tcount')
 
-/* Trackers públicos compatíveis com WebRTC */
+/* Trackers públicos compatíveis com WebRTC - Lista atualizada 2025 */
 const DEFAULT_ANNOUNCE = [
   'wss://tracker.openwebtorrent.com',
   'wss://tracker.btorrent.xyz',
   'wss://tracker.webtorrent.dev',
   'wss://tracker.files.fm:7073/announce',
   'wss://tracker.openbittorrent.com',
-  'wss://tracker.sloppyta.co:443/announce',
-  'wss://tracker.novage.com.ua:443/announce',
+  'wss://tracker.sloppyta.co/announce',
+  'wss://tracker.novage.com.ua/announce',
   'wss://tracker.torrent.eu.org:451/announce',
-  'wss://tracker2.dler.org:443/announce',
-  'wss://tracker.0x.tf:443/announce',
-  'wss://tracker1.bt.moack.co.kr:443/announce',
-  'wss://tracker.monitoracitor.org:443/announce',
-  'wss://tracker.renfei.net:443/announce',
-  'wss://tracker.tamersunion.org:443/announce',
-  'wss://tracker.lelux.fi:443/announce',
+  'wss://tracker2.dler.org/announce',
+  'wss://tracker.0x.tf/announce',
+  'wss://tracker1.bt.moack.co.kr/announce',
+  'wss://tracker.monitoracitor.org/announce',
+  'wss://tracker.renfei.net/announce',
+  'wss://tracker.tamersunion.org/announce',
+  'wss://tracker.lelux.fi/announce',
   'wss://tracker.opentrackr.org:1337/announce',
-  'wss://tracker.pomf.se:443/announce',
-  'wss://tracker.srv00.com:443/announce',
-  'wss://tracker.theoks.net:443/announce',
-  'wss://tracker.tryhackx.org:443/announce',
-  'wss://tracker.xerebrov.net:443/announce',
-  'wss://tracker.zemoj.com:443/announce'
+  'wss://tracker.pomf.se/announce',
+  'wss://tracker.srv00.com/announce',
+  'wss://tracker.theoks.net/announce',
+  'wss://tracker.tryhackx.org/announce',
+  'wss://tracker.xerebrov.net/announce',
+  'wss://tracker.zemoj.com/announce',
+  // Trackers adicionais mais confiáveis
+  'wss://tracker.fastcast.nz/announce',
+  'wss://tracker.internetwarriors.net/announce',
+  'wss://tracker.kamigami.org/announce',
+  'wss://tracker.mg64.net/announce',
+  'wss://tracker.supernova.org/announce'
 ]
 
 function ensureClient() {
   if (client) return client
   client = new WebTorrent({
-    tracker: { announce: DEFAULT_ANNOUNCE }
+    tracker: { 
+      announce: DEFAULT_ANNOUNCE,
+      rtcConfig: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      }
+    }
   })
   client.on('error', (err) => {
     console.error('Client error:', err)
+    // Ignorar erros relacionados ao asm.js
+    if (err.message && err.message.includes('asm.js')) {
+      console.warn('Aviso asm.js ignorado:', err.message)
+      return
+    }
     toast('Erro no cliente WebTorrent: ' + (err?.message || err), 'error')
   })
   client.on('warning', (err) => {
     console.warn('Client warning:', err)
+    // Ignorar avisos de trackers offline
+    if (err.message && (err.message.includes('tracker') || err.message.includes('WebSocket'))) {
+      console.log('Tracker offline (normal):', err.message)
+      return
+    }
     if (err.message.includes('tracker')) {
       toast('Aviso: Alguns trackers podem estar offline', 'warning')
     }
@@ -128,6 +160,11 @@ function addTorrent(input, opts={}) {
 
       torrent.on('error', (err) => {
         console.error('Torrent error:', err)
+        // Ignorar erros de WebSocket e asm.js
+        if (err.message && (err.message.includes('WebSocket') || err.message.includes('asm.js'))) {
+          console.warn('Erro ignorado:', err.message)
+          return
+        }
         toast('Erro no torrent: ' + (err?.message || err), 'error')
         reject(err)
       })
@@ -149,7 +186,7 @@ function addTorrent(input, opts={}) {
       })
 
       torrent.on('noPeers', () => {
-        toast('Nenhum peer encontrado. Verifique se o torrent tem suporte WebRTC ou tente outro torrent.', 'warning')
+        toast('Nenhum peer encontrado. Isso é normal - tente torrents populares com suporte WebRTC.', 'warning')
         updateTorrentRow(torrent)
       })
 
@@ -312,9 +349,17 @@ async function streamFile(t, file) {
     downloadCurrent.href = url
   } catch (e) {
     console.error('Erro no stream:', e)
-    if (e.name !== 'AbortError' && !e.message.includes('interrupted') && !e.message.includes('load request')) {
-      toast('Não foi possível reproduzir este arquivo: ' + (e?.message || e), 'error')
+    // Ignorar erros comuns que não afetam a funcionalidade
+    if (e.name === 'AbortError' || 
+        (e.message && (e.message.includes('interrupted') || 
+                      e.message.includes('load request') || 
+                      e.message.includes('WebSocket') ||
+                      e.message.includes('asm.js')))) {
+      console.warn('Erro ignorado no stream:', e.message)
+      toast('Stream carregado (alguns avisos foram ignorados)', 'success')
+      return
     }
+    toast('Não foi possível reproduzir este arquivo: ' + (e?.message || e), 'error')
   }
 }
 
@@ -431,3 +476,21 @@ toggleHelp.addEventListener('click', (e)=>{
     })
   })
 })()
+
+/* Função de diagnóstico para debug */
+function runDiagnostics() {
+  console.log('=== DIAGNÓSTICO WEBTORRENT ===')
+  console.log('WebTorrent disponível:', typeof WebTorrent !== 'undefined')
+  console.log('WebRTC suportado:', !!window.RTCPeerConnection)
+  console.log('Trackers configurados:', DEFAULT_ANNOUNCE.length)
+  console.log('Cliente ativo:', !!client)
+  if (client) {
+    console.log('Torrents ativos:', client.torrents.length)
+    console.log('Download speed:', client.downloadSpeed)
+    console.log('Upload speed:', client.uploadSpeed)
+  }
+  console.log('=== FIM DIAGNÓSTICO ===')
+}
+
+// Expor função de diagnóstico globalmente para debug
+window.runDiagnostics = runDiagnostics

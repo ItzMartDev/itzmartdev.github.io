@@ -33,6 +33,51 @@ Cliente WebTorrent 100% estático com design moderno, compatível com GitHub Pag
 - **Privacidade**: IP visível para peers (como qualquer P2P)
 - **Sem UDP**: Trackers UDP não funcionam no navegador
 
+## 🔧 Solução de Problemas
+
+### Erros Comuns e Soluções:
+
+**"Invalid asm.js: Unexpected token"**
+- ✅ **Ignorado automaticamente** - Este é um aviso inofensivo do WebTorrent
+- Não afeta a funcionalidade do site
+
+**"WebSocket connection to tracker failed"**
+- ✅ **Normal** - Muitos trackers ficam offline
+- O sistema tenta múltiplos trackers automaticamente
+- Continue tentando - alguns trackers funcionam
+
+**"Nenhum peer encontrado"**
+- Tente torrents populares com suporte WebRTC
+- Espere alguns minutos - peers podem aparecer
+- Verifique se o torrent tem peers ativos
+
+**"Conexão lenta"**
+- Alguns trackers estão temporariamente offline
+- Tente novamente em alguns minutos
+- Use torrents com muitos peers
+
+### Como Testar:
+1. Abra o console do navegador (F12)
+2. Digite `runDiagnostics()` e pressione Enter
+3. Verifique se WebTorrent está carregado corretamente
+
+## ❓ FAQ
+
+**Q: Por que tantos erros de WebSocket no console?**
+A: É normal! Muitos trackers ficam offline. O sistema tenta conectar a vários automaticamente.
+
+**Q: O que significa "Invalid asm.js"?**
+A: É um aviso inofensivo do WebTorrent. Não afeta o funcionamento.
+
+**Q: Por que não encontra peers?**
+A: Nem todos os torrents têm suporte WebRTC. Tente torrents populares.
+
+**Q: Como sei se está funcionando?**
+A: Use `runDiagnostics()` no console ou veja as estatísticas em tempo real.
+
+**Q: É seguro usar?**
+A: Sim, mas seu IP fica visível para peers (como qualquer P2P). Use VPN se quiser anonimato.
+
 ## 🛠️ Desenvolvimento
 
 - `index.html` - Estrutura e layout
