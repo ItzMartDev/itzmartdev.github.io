@@ -21,6 +21,13 @@ let client
 let torrents = []
 let currentFile = null
 
+// Verificar se WebTorrent está disponível
+if (typeof WebTorrent === 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    toast('Erro: WebTorrent não carregou. Verifique sua conexão com a internet.', 'error')
+  })
+}
+
 /* DOM refs */
 const magnetInput = $('#magnetInput')
 const addMagnetBtn = $('#addMagnetBtn')
@@ -42,9 +49,66 @@ const tcountEl = $('#tcount')
 /* Trackers públicos compatíveis com WebRTC */
 const DEFAULT_ANNOUNCE = [
   'wss://tracker.openwebtorrent.com',
-  'wss://tracker.fastcast.nz',
   'wss://tracker.btorrent.xyz',
   'wss://tracker.webtorrent.dev',
+  'wss://tracker.files.fm:7073/announce',
+  'wss://tracker.openbittorrent.com',
+  'wss://tracker.fastcast.nz',
+  'wss://tracker.sloppyta.co:443/announce',
+  'wss://tracker.novage.com.ua:443/announce',
+  'wss://tracker.torrent.eu.org:451/announce',
+  'wss://tracker2.dler.org:443/announce',
+  'wss://tracker.0x.tf:443/announce',
+  'wss://tracker1.bt.moack.co.kr:443/announce',
+  'wss://tracker.monitoracitor.org:443/announce',
+  'wss://tracker.renfei.net:443/announce',
+  'wss://tracker.tamersunion.org:443/announce',
+  'wss://tracker.lelux.fi:443/announce',
+  'wss://tracker.opentrackr.org:1337/announce',
+  'wss://tracker.pomf.se:443/announce',
+  'wss://tracker.srv00.com:443/announce',
+  'wss://tracker.theoks.net:443/announce',
+  'wss://tracker.tryhackx.org:443/announce',
+  'wss://tracker.xerebrov.net:443/announce',
+  'wss://tracker.zemoj.com:443/announce',
+  'wss://tracker1.myporn.club:443/announce',
+  'wss://tracker2.myporn.club:443/announce',
+  'wss://tracker.pussytorrents.org:443/announce',
+  'wss://tracker.therarbg.to:443/announce',
+  'wss://tracker.ipv6tracker.ru:80/announce',
+  'wss://tracker.coppersurfer.tk:6969/announce',
+  'wss://tracker.leechers-paradise.org:6969/announce',
+  'wss://tracker.internetwarriors.net:1337/announce',
+  'wss://tracker.zer0day.to:1337/announce',
+  'wss://tracker.nwps.ws:6969/announce',
+  'wss://tracker.mg64.net:6969/announce',
+  'wss://tracker.cyberia.is:6969/announce',
+  'wss://tracker.moeking.me:6969/announce',
+  'wss://tracker.netmap.top:6969/announce',
+  'wss://tracker.v6speed.org:6969/announce',
+  'wss://tracker.lelux.fi:6969/announce',
+  'wss://tracker.opentrackr.org:1337/announce',
+  'wss://tracker.pomf.se:6969/announce',
+  'wss://tracker.srv00.com:6969/announce',
+  'wss://tracker.theoks.net:6969/announce',
+  'wss://tracker.tryhackx.org:6969/announce',
+  'wss://tracker.xerebrov.net:6969/announce',
+  'wss://tracker.zemoj.com:6969/announce',
+  'wss://tracker1.myporn.club:6969/announce',
+  'wss://tracker2.myporn.club:6969/announce',
+  'wss://tracker.pussytorrents.org:6969/announce',
+  'wss://tracker.therarbg.to:6969/announce',
+  'wss://tracker.ipv6tracker.ru:80/announce',
+  'wss://tracker.coppersurfer.tk:6969/announce',
+  'wss://tracker.leechers-paradise.org:6969/announce',
+  'wss://tracker.internetwarriors.net:1337/announce',
+  'wss://tracker.zer0day.to:1337/announce',
+  'wss://tracker.nwps.ws:6969/announce',
+  'wss://tracker.mg64.net:6969/announce',
+  'wss://tracker.cyberia.is:6969/announce',
+  'wss://tracker.moeking.me:6969/announce',
+  'wss://tracker.netmap.top:6969/announce',
+  'wss://tracker.v6speed.org:6969/announce'
 ]
 
 function ensureClient() {
@@ -52,8 +116,26 @@ function ensureClient() {
   client = new WebTorrent({
     tracker: { announce: DEFAULT_ANNOUNCE }
   })
-  client.on('error', (err) => console.error('Client error:', err))
+  client.on('error', (err) => {
+    console.error('Client error:', err)
+    toast('Erro no cliente WebTorrent: ' + (err?.message || err), 'error')
+  })
+  client.on('warning', (err) => {
+    console.warn('Client warning:', err)
+    if (err.message.includes('tracker')) {
+      toast('Aviso: Alguns trackers podem estar offline', 'warning')
+    }
+  })
   setInterval(updateGlobalStats, 800)
+
+  // Esconder loading state quando pronto
+  setTimeout(() => {
+    const loadingState = document.querySelector('.loading-state')
+    if (loadingState) loadingState.style.display = 'none'
+    const emptyState = document.querySelector('.empty-state')
+    if (emptyState && torrents.length === 0) emptyState.style.display = 'block'
+  }, 2000)
+
   return client
 }
 
@@ -97,15 +179,26 @@ function addTorrent(input, opts={}) {
       // Adicionar loading state
       torrent.on('metadata', () => {
         toast('Metadados carregados para ' + (torrent.name || torrent.infoHash.slice(0,8)))
+        updateTorrentRow(torrent)
       })
 
       torrent.on('ready', () => {
         toast('Torrent pronto: ' + torrent.files.length + ' arquivos')
+        updateTorrentRow(torrent)
       })
 
       torrent.on('noPeers', () => {
-        toast('Nenhum peer encontrado. Verifique se o torrent tem suporte WebRTC.', 'warning')
+        toast('Nenhum peer encontrado. Verifique se o torrent tem suporte WebRTC ou tente outro torrent.', 'warning')
+        updateTorrentRow(torrent)
       })
+
+      // Timeout para trackers
+      setTimeout(() => {
+        if (torrent.numPeers === 0) {
+          toast('Conexão lenta. Alguns trackers podem estar offline. Tente novamente em alguns minutos.', 'warning')
+          updateTorrentRow(torrent)
+        }
+      }, 10000)
 
     } catch (e) {
       reject(e)
@@ -198,10 +291,11 @@ function updateTorrentRow(t) {
 
   // Atualizar status
   let statusText = 'Conectando...'
-  if (t.progress === 1) statusText = 'Completo'
+  if (t.progress === 1) statusText = 'Completo ✓'
   else if (t.downloadSpeed > 0) statusText = 'Baixando...'
-  else if (t.numPeers > 0) statusText = 'Conectado'
+  else if (t.numPeers > 0) statusText = `Conectado (${t.numPeers} peers)`
   else if (t.ready) statusText = 'Pronto'
+  else if (torrent && torrent.numPeers === 0 && Date.now() - (torrent.created || 0) > 5000) statusText = 'Procurando peers...'
   status.textContent = statusText
 }
 
@@ -216,7 +310,18 @@ async function streamFile(t, file) {
 
     if (isPlayable(file.name)) {
       await new Promise((resolve, reject) => {
-        file.renderTo(player, { autoplay: true }, (err) => err ? reject(err) : resolve())
+        file.renderTo(player, { autoplay: true }, (err) => {
+          if (err) {
+            // Ignorar erros de play interrompido
+            if (err.name === 'AbortError' || err.message.includes('interrupted')) {
+              resolve()
+            } else {
+              reject(err)
+            }
+          } else {
+            resolve()
+          }
+        })
       })
       toast('Stream iniciado!', 'success')
     } else {
@@ -230,8 +335,10 @@ async function streamFile(t, file) {
     const url = URL.createObjectURL(blob)
     downloadCurrent.href = url
   } catch (e) {
-    console.error(e)
-    toast('Não foi possível reproduzir este arquivo: ' + (e?.message || e), 'error')
+    console.error('Erro no stream:', e)
+    if (e.name !== 'AbortError' && !e.message.includes('interrupted')) {
+      toast('Não foi possível reproduzir este arquivo: ' + (e?.message || e), 'error')
+    }
   }
 }
 

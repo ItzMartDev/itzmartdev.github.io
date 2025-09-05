@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <title>Torrent Web Lite</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
     <meta name="description" content="Cliente BitTorrent no navegador (WebTorrent) para stream e download – compatível com GitHub Pages." />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="./styles.css" />
@@ -51,7 +52,11 @@
       <section>
         <h2>Torrents</h2>
         <div id="torrents" class="torrents">
-          <p class="empty-state">Nenhum torrent adicionado ainda. Cole um magnet link ou solte um arquivo .torrent acima.</p>
+          <div class="loading-state">
+            <p>Carregando WebTorrent... Aguarde alguns segundos.</p>
+            <div class="spinner" style="margin: 10px auto;"></div>
+          </div>
+          <p class="empty-state" style="display: none;">Nenhum torrent adicionado ainda. Cole um magnet link ou solte um arquivo .torrent acima.</p>
         </div>
       </section>
 
@@ -67,11 +72,18 @@
       <section id="help" class="help hidden">
         <h2>Ajuda & Limitações</h2>
         <ul>
-          <li>Funciona via WebTorrent (WebRTC). Precisa de <strong>seeders</strong> com suporte a WebRTC.</li>
-          <li>Alguns torrents da rede BitTorrent tradicional podem não aparecer aqui.</li>
-          <li>Streaming direto no navegador para vídeos compatíveis (mp4/webm/ogg) e áudio (mp3/ogg/m4a).</li>
-          <li>Se algo não conectar, tente outros trackers ou outro torrent.</li>
-          <li>Privacidade: seu IP é visível para os peers do torrent, como em qualquer cliente P2P.</li>
+          <li><strong>Como usar:</strong> Cole um magnet link ou solte um arquivo .torrent. Aguarde a conexão com peers.</li>
+          <li><strong>WebRTC necessário:</strong> Funciona apenas com torrents que têm peers WebRTC. Nem todos os torrents tradicionais funcionam.</li>
+          <li><strong>Streaming:</strong> Clique em "Stream" para reproduzir vídeos/áudios suportados (mp4/webm/ogg/mp3/m4a/wav).</li>
+          <li><strong>Problemas comuns:</strong>
+            <ul>
+              <li>Se "Nenhum peer encontrado": O torrent pode não ter suporte WebRTC ou estar offline.</li>
+              <li>Se "Conexão lenta": Alguns trackers estão offline. Tente novamente mais tarde.</li>
+              <li>Se erro no stream: O arquivo pode não ser compatível ou corrompido.</li>
+            </ul>
+          </li>
+          <li><strong>Privacidade:</strong> Seu IP é visível para peers (como qualquer P2P). Use VPN se necessário.</li>
+          <li><strong>Suporte:</strong> Funciona melhor em Chrome/Firefox. Edge/Safari podem ter limitações.</li>
         </ul>
       </section>
     </main>
